@@ -1,0 +1,458 @@
+source = ~/.cache/wal/colors-hyprland.conf
+# source = ~/.config/hypr/conf/programs.conf
+# source = ~/.config/hypr/conf/startup.conf
+# source = ~/.config/hypr/conf/env.conf
+# source = ~/.config/hypr/conf/input.conf
+# source = ~/.config/hypr/conf/appearance.conf
+# source = ~/.config/hypr/conf/layouts.conf
+# source = ~/.config/hypr/conf/keybinds.conf
+# source = ~/.config/hypr/conf/windowrules.conf
+# source = ~/.config/hypr/conf/misc.conf
+# source = ~/.config/hypr/conf/monitors.conf
+# source = ~/.config/hypr/conf/workspaces.conf
+# ... (The rest of your code follows below) ...
+
+
+
+# CHANGE THESE TO MATCH YOUR MONITOR SETUP
+# source = ~/.config/hypr/conf/monitors.conf
+# # (requires hyprsome)
+# source = ~/.config/hypr/conf/workspaces.conf
+
+# =================================================================
+# SACHIN'S MASTER CONFIGURATION (Paste below 'source' lines)
+# =================================================================
+
+#solution for file opening issues
+env = XDG_CURRENT_DESKTOP,Hyprland
+env = XDG_SESSION_TYPE,wayland
+env = XDG_SESSION_DESKTOP,Hyprland
+env = QT_QPA_PLATFORM,wayland;xcb
+env = QT_QPA_PLATFORMTHEME,qt5ct
+
+#making firefox more responsive
+#search for media.ffmpeg.vaapi.enabled
+#in about:config in firefox
+#set it to true
+env = MOZ_ENABLE_WAYLAND,1
+env = MOZ_WEBRENDER,1
+#<------>
+
+
+# --- 1. MONITOR & AUTOSTART ---
+monitor = , preferred, auto, 1.25
+
+env = HYPRLAND_INSTANCE_SIGNATURE,$HYPRLAND_INSTANCE_SIGNATURE
+# Start wallpaper, network, and auth agent
+
+#for feedbacking battery
+#exec-once = ~/.config/hypr/scripts/charge_notify.sh &
+# Run SwayOSD forever, silently. If it crashes, wait 1s and restart.
+exec-once = while true; do swayosd-server; sleep 1; done > /dev/null 2>&1 &
+
+
+# Run your bulletproof Battery script forever, silently.
+exec-once = ~/.config/hypr/scripts/charge_notify.sh > /dev/null 2>&1 &
+
+# This will start Hyprland and immediately lock the screen with your custom theme
+#exec-once = hyprlock
+
+#exec-once = ~/.config/hypr/scripts/cycle_wallpaper.sh
+#exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
+# Start the wallpaper daemon
+exec-once = swww-daemon
+
+# Restore the LAST wallpaper set (from cache)
+exec-once = swww restore
+
+#widget
+exec-once = eww daemon && eww open topbar
+
+# Restore the LAST color scheme (from cache)
+exec-once = wal -R
+exec-once = dbus-update-activation-environment --systemd --all
+exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec-once = gnome-keyring-daemon --start --components=secrets
+exec-once = hyprpaper
+#exec-once = swww-daemon & swww img ~/Desktop/wallpapers/enhancedjinwoo.jpg
+exec-once = nm-applet --indicator &
+#exec-once = wl-clipboard-history -t   
+#exec-once = wl-paste --watch cliphist store    
+#exec-once = rm "$HOME/.cache/cliphist/db"
+#easyeffects improves speaker sounds
+exec-once = easyeffects --gapplication-service
+
+# Ensure Waybar is hidden by default (Kill it if it starts)
+exec-once = pkill waybar
+exec-once = hyprctl dispatch workspace 1
+exec-once = ~/.config/hypr/scripts/battery_check.sh &
+
+
+# --- 2. GENERAL LAYOUT (No Gaps, Full Screen) ---
+general {
+    gaps_in = 0
+    gaps_out = 0
+    border_size = 1
+    # Colors (Cyan and Green border)
+   # col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
+   # col.inactive_border = rgba(595959aa)
+     col.active_border = $color2 $color4 45deg
+     col.inactive_border = $background 
+     layout = dwindle
+}
+
+# --- 3. DECORATION (Fixed for Hyprland v0.45+) ---
+decoration {
+    rounding = 0
+    
+    #old rules for Transparency: Active = 85%, Inactive = 85%
+    #active_opacity = 0.97
+    active_opacity = 1
+    inactive_opacity = 1
+    #inactive_opacity = 0.95
+    fullscreen_opacity = 1
+    
+
+    # Blur settings for that "glass" look
+    blur {
+        enabled = false
+        #size = 5
+        #passes = 3
+        #new_optimizations = true
+    }
+
+    # New Shadow Syntax (Fixes the Red Bar error)
+    shadow {
+        enabled = true
+        range = 4
+        render_power = 3
+        color = rgba(1a1a1aee)
+    }
+}
+
+# --- 4. TILING BEHAVIOR (50/50 Split) ---
+dwindle {
+    pseudotile = yes
+    preserve_split = yes
+    force_split = 2  # Forces windows to always split 50/50
+}
+
+
+
+
+#<------------->
+# the line marked with ### is commented by me
+# --- 5. WINDOW RULES ---
+# Force Kitty to be 30% transparent (0.7) and always tile
+
+windowrule = opacity 0.9 0.9, match:class ^(kitty)$
+windowrule = tile on, match:class ^(kitty)$
+
+# Chrome settings
+windowrule = opacity 0.99 0.99, match:class ^(google-chrome)$
+windowrule = tile on, match:class ^(google-chrome)$
+#windowrule = opacity 1, match:class ^(firefox)$
+# 3. Global Default: Ensure all apps tile by default
+windowrule = tile on, match:class .*
+
+# 1. Force all windows to float by default (Windows style)
+##windowrule = float 1, match:class .*
+
+# Minecraft Window Rules
+#windowrule = float 1, match:class ^(org.prismlauncher.PrismLauncher)$
+#windowrule = tile on, match:class ^(Minecraft*)$
+#windowrule = no_anim on, match:class ^(Minecraft*)$
+#windowrule = rounding 0, match:class ^(Minecraft*)$
+
+
+###for windows os like floating i added this
+# remember_window_size  yes
+#initial_window_width  640
+#initial_window_height 400
+##in kitty/kitty.conf
+
+resize_on_border = false
+
+#firefox size
+# Force Firefox to always open at a specific large size (1200x800)
+windowrule = size 1200 800, match:class ^(firefox)$
+windowrule = center 1, match:class ^(firefox)$
+
+
+# ==========================================
+# INSTANT NOTES (Google Keep App)
+# ==========================================
+
+# 1. Strip the browser UI and make it a popup
+windowrule = float 1, match:class ^(KeepApp)$
+windowrule = size 500 600, match:class ^(KeepApp)$
+
+# 2. Perfect Bottom-Right positioning for 125% Scaling
+windowrule = move 1016 244, match:class ^(KeepApp)$
+
+# 3. Aesthetics and Workspace Logic
+windowrule = border_size 2, match:class ^(KeepApp)$
+windowrule = rounding 15, match:class ^(KeepApp)$
+windowrule = animation slide, match:class ^(KeepApp)$
+windowrule = workspace special:notes silent, match:class ^(KeepApp)$
+
+#<------------->
+
+
+
+
+
+# --- 6. KEYBINDINGS ---
+$mainMod = SUPER
+
+# Unbind old keys to prevent double-opening
+unbind = $mainMod, U
+unbind = $mainMod, O
+
+# Application Shortcuts
+bind = $mainMod, U, exec, kitty
+bind = $mainMod, W, exec, google-chrome-stable
+bind = $mainMod, E, exec, thunar
+#bind = $mainMod, R, exec, wofi --show drun
+#bind = $mainMod, SPACE, exec, wofi --show drun
+
+# System Controls
+bind = $mainMod, M, exit           # Log out
+#bind = $mainMod, L, togglefloating # Float window
+bind = $mainMod, F, fullscreen     # Fullscreen
+bind = $mainMod SHIFT, C, exec, hyprctl reload
+
+
+# Screenshot (Win+Shift+S) -> Save to Pictures & Copy to Clipboard
+bind = $mainMod SHIFT, S, exec, grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot Copied to Clipboard"
+
+# Workspace Switching (1-5)
+bind = $mainMod, 1, workspace, 1
+bind = $mainMod, 2, workspace, 2
+bind = $mainMod, 3, workspace, 3
+bind = $mainMod, 4, workspace, 4
+bind = $mainMod, 5, workspace, 5
+
+# Move Window to Workspace
+bind = $mainMod SHIFT, 1, movetoworkspace, 1
+bind = $mainMod SHIFT, 2, movetoworkspace, 2
+bind = $mainMod SHIFT, 3, movetoworkspace, 3
+bind = $mainMod SHIFT, 4, movetoworkspace, 4
+bind = $mainMod SHIFT, 5, movetoworkspace, 5
+
+# Mouse Scroll/Move
+bindm = $mainMod, mouse:272, movewindow
+#bindm = $mainMod, mouse:273, resizewindow
+# Resize Window: Win + Shift + Left Click
+# (Hyprland detects which corner/edge you click nearest to and resizes that side)
+bindm = $mainMod SHIFT, mouse:272, resizewindow
+
+bind = $mainMod, O, killactive      # Close Window
+bind = $mainMod, O, exec, pkill wofi # Close Search
+bind = $mainMod, B, exec, pkill waybar || waybar
+exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland
+
+# --- WINDOW FOCUS (Switching between windows) ---
+
+# Using Win + Shift + Letters (Your custom style)
+bind = $mainMod SHIFT, J, movefocus, l   # Focus Left
+bind = $mainMod SHIFT, O, movefocus, r   # Focus Right
+bind = $mainMod SHIFT, U, movefocus, u   # Focus Up
+bind = $mainMod SHIFT, N, movefocus, d   # Focus Down
+
+# Win + Tab (Cycle through all windows - like Alt+Tab)
+bind = $mainMod, Tab, cyclenext,
+
+#bind = $mainMod ALT, W, exec, swww img $(find ~/Desktop/wallpapers -type f | shuf -n 1)
+bind = $mainMod ALT, W, exec, ~/.config/hypr/scripts/cycle_wallpaper.sh
+
+animations {
+	enabled = true
+        bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+	animation = windowsOut, 0, 7, default, popin 80%
+        animation = workspaces, 0, 6, default
+        animation = border, 0, 10, default
+	animation = fade, 0, 7, default
+}
+
+# Win + Shift + Escape opens btop task manager
+bind = $mainMod SHIFT, Escape, exec, kitty btop
+
+
+
+####remove disable_while_typing = false after deleting minecraft
+input {
+    touchpad {
+        natural_scroll = true
+	scroll_factor = 0.3 
+        clickfinger_behavior = true
+	disable_while_typing = false
+   }
+}
+
+
+# Open Start Menu when pressing and releasing the Windows Key
+bind = $mainMod SHIFT, I, exec, wofi --show drun
+
+# --- MEDIA & BRIGHTNESS KEYS (With Visual Feedback) ---
+
+# Volume
+binde = , XF86AudioRaiseVolume, exec, swayosd-client --output-volume raise
+binde = , XF86AudioLowerVolume, exec, swayosd-client --output-volume lower
+bind = , XF86AudioMute, exec, swayosd-client --output-volume mute-toggle
+bind = , XF86AudioMicMute, exec, swayosd-client --input-volume mute-toggle
+
+# Brightness
+binde = , XF86MonBrightnessUp, exec, swayosd-client --brightness raise
+binde = , XF86MonBrightnessDown, exec, swayosd-client --brightness lower
+
+
+# Media Player Controls (Keep these, they are fine)
+bind = , XF86AudioPlay, exec, playerctl play-pause
+bind = , XF86AudioPause, exec, playerctl play-pause
+bind = , XF86AudioNext, exec, playerctl next
+bind = , XF86AudioPrev, exec, playerctl previous
+
+
+misc {
+    # This allows scripts like WallRizz to change colors and reload settings
+    disable_hyprland_logo = true
+    force_default_wallpaper = 0
+    allow_session_lock_restore = true
+
+}
+
+# --- Night Light Configuration ---
+
+# Toggle on/off with Win + N
+bind = SUPER, n, exec, ~/.config/hypr/scripts/nightlight.sh toggle
+
+# Increase Temp (Cooler) with Win + Numpad Plus
+bind = SUPER, KP_Add, exec, ~/.config/hypr/scripts/nightlight.sh inc
+
+# Decrease Temp (Warmer) with Win + Numpad Minus
+bind = SUPER, KP_Subtract, exec, ~/.config/hypr/scripts/nightlight.sh dec
+
+
+unbind = $mainMod, K
+bind = $mainMod, K, exec, firefox
+
+unbind = $mainMod, T
+bind = $mainMod, T, exec, /usr/bin/Telegram
+
+#clipboard
+#bind = SUPER, SPACE, exec, ~/.local/bin/cliphist-wofi.sh
+
+#shortcut to toggle widgets
+unbind = $mainMod, X
+bind = $mainMod, X, exec, eww open topbar --toggle
+
+# Win + D: Toggle Desktop View (Minimizes/Restores windows)
+unbind = $mainMod, D
+bind = $mainMod, D, exec, ~/.config/hypr/scripts/show_desktop.sh
+
+
+#zooming functionality
+# --- ZOOM "MODE" CONFIGURATION ---
+
+# 1. Define the "Zoom" variable (Default is 1.0)
+# We use a submap to create a "mode" where keys behave differently
+
+# ENTER ZOOM MODE (Win + P) -> Sets zoom to 2.0 immediately
+unbind = SUPER, P
+bind = SUPER, P, exec, hyprctl keyword cursor:zoom_factor 2.0
+bind = SUPER, P, submap, zoom
+
+# --- ZOOM SUBMAP ---
+submap = zoom
+
+# While in "zoom" mode:
+# Press + to Zoom IN
+binde = , KP_Add, exec, hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor | awk '/float/ {print $2 + 0.5}')
+binde = SHIFT, equal, exec, hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor | awk '/float/ {print $2 + 0.5}')
+
+# Press - to Zoom OUT
+binde = , KP_Subtract, exec, hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor | awk '/float/ {print $2 - 0.5}')
+binde = , minus, exec, hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor | awk '/float/ {print $2 - 0.5}')
+
+# EXIT ZOOM MODE (Win + P or Esc) -> Resets to 1.0
+bind = SUPER, P, exec, hyprctl keyword cursor:zoom_factor 1.0
+bind = SUPER, P, submap, reset
+bind = , Escape, exec, hyprctl keyword cursor:zoom_factor 1.0
+bind = , Escape, submap, reset
+
+# Reset submap (End of block)
+submap = reset
+
+#to show all the keybinding and thier functionality
+unbind = $mainMod, Slash
+bind = $mainMod, Slash, exec, eww open keybinds --toggle
+
+#you must enter your keybindings in this hyprland.conf file
+#setting up in custom_binds.conf wont work out
+#it will only update in the keybindings list (Win + /)
+
+
+#to open localsend(airdrop sort of)
+bind = $mainMod, Semicolon, exec, localsend
+
+
+# --- WINDOWS OS BEHAVIOR ---
+
+# 1. Maximize Window (Win + Shift + L)
+# 'fullscreen, 1' fills the screen but keeps the top bar visible (Maximize)
+bind = $mainMod SHIFT, L, fullscreen, 1
+
+# 2. Toggle Mode for WHOLE WORKSPACE (Win + L)
+# 'workspaceopt, allfloat' forces EVERY app on the current workspace 
+# to switch between Floating (Windows style) and Tiling (50/50).
+bind = $mainMod, L, exec, ~/.config/hypr/scripts/toggle_layout.sh
+
+# 3. Switching Apps (Alt + Tab)
+# 'cyclenext' moves focus to the next window.
+# 'bringactivetotop' pulls that window to the front so it doesn't stay hidden behind others.
+#bind = ALT, Tab, cyclenext,
+bind = SUPER, Tab, bringactivetotop,
+
+
+bind = SUPER, A, exec, ~/.config/hypr/scripts/audio_toggle.sh
+#for dvorak right hand 
+bind = SUPER, Z, exec, hyprctl switchxkblayout all next
+
+
+
+#for dvorak right hand 
+input {
+    kb_layout = us,us
+    kb_variant = ,dvorak-r
+}    
+
+
+
+
+#commands to handle notes folder
+# --- QUICK NOTES & TYPST MENU ---
+bind = $mainMod, I, exec, ~/.local/bin/notes-menu
+
+
+
+
+
+# --- HUD UTILITIES ---
+
+# Win + Space: Clipboard Manager (Bottom Right)
+unbind = $mainMod, SPACE
+bind = $mainMod, SPACE, exec, ~/.local/bin/rofi-clipboard
+
+# Win + Shift + E: HUD File Manager (Bottom Right)
+unbind = $mainMod SHIFT, E
+bind = $mainMod SHIFT, E, exec, ~/.local/bin/rofi-fm
+
+# 4. The Trigger (Win + Shift + N)
+bind = $mainMod SHIFT, N, exec, ~/.local/bin/keep-toggleN
+
+#this should always be at the bottom 
+source = ~/.config/hypr/custom_binds.conf
+
+

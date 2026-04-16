@@ -1,0 +1,220 @@
+// --- 1. IMPORT PYWAL COLORS ---
+@import "/home/sachin/.cache/wal/colors.scss";
+
+// --- 2. GLOBAL RESET ---
+* {
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font";
+}
+
+// Make all window backgrounds transparent
+window {
+  background-color: transparent;
+}
+
+// =============================================================================
+// WINDOW: TOP BAR (Floating Islands)
+// =============================================================================
+
+.main-bar {
+  padding: 0 15px; // This creates the "gap" at the sides of the screen
+}
+
+// The generic style for every "Island"
+.module-box {
+  background-color: rgba($background, 0.90);
+  border: 1px solid $color2;
+  border-radius: 12px;
+  padding: 3px 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+// --- App Launchers ---
+.icon-btn {
+  font-size: 16px;
+  color: $foreground;
+  padding: 0 5px;
+  transition: 0.2s;
+
+  &:hover {
+    color: $color2;
+    // NOTE: transform: scale removed to prevent crashes
+  }
+}
+
+// --- Workspaces ---
+.ws-btn {
+  color: $color8;
+  padding: 0 6px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: 0.2s;
+
+  &:hover { color: $foreground; }
+}
+
+.ws-btn.active {
+  color: $color2;
+  background-color: rgba($color2, 0.15);
+  border-radius: 6px;
+}
+
+// --- System Statistics ---
+.stat-label {
+  font-size: 12px;
+  font-weight: bold;
+}
+.cpu { color: $color3; }
+.mem { color: $color4; }
+.wifi { color: $color6; }
+.vol { color: $color5; }
+.bat { color: $color2; }
+
+// --- Clock & Menu ---
+.time {
+  color: $color3;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.date {
+  color: $foreground;
+  font-size: 11px;
+  opacity: 0.8;
+  margin-left: 5px;
+}
+
+.menu-btn {
+  background-color: transparent;
+  color: $color2;
+  padding: 0 5px;
+  font-size: 18px;
+  border-radius: 5px;
+  margin-left: 5px;
+  transition: 0.2s;
+
+  &:hover { color: $foreground; }
+}
+
+// =============================================================================
+// WINDOW: DASHBOARD (Control Center)
+// =============================================================================
+
+.dashboard-overlay {
+  padding-top: 60px;
+  padding-right: 20px;
+}
+
+.dashboard-box {
+  background-color: $background;
+  border: 2px solid $color2;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: -5px 5px 20px rgba(0,0,0,0.6);
+}
+
+.dash-title {
+  color: $color2;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.dash-btn {
+  background-color: $color8;
+  color: $foreground;
+  // Use min-width/height to avoid GTK errors
+  min-width: 60px;
+  min-height: 60px;
+  border-radius: 15px;
+  font-size: 24px;
+  transition: 0.2s;
+
+  &:hover { background-color: $color1; }
+}
+
+// Active State (Glowing buttons)
+.dash-btn.active {
+  background-color: $color2;
+  color: $background;
+  box-shadow: 0 0 15px rgba($color2, 0.5);
+  border: 1px solid $foreground;
+}
+
+.dash-btn-wide {
+  background-color: $color8;
+  color: $foreground;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-weight: bold;
+
+  &:hover { background-color: $color2; color: $background; }
+}
+
+// =============================================================================
+// WINDOW: KEYBINDINGS CHEATSHEET
+// =============================================================================
+
+.keys-box {
+  background-color: rgba($background, 0.98);
+  border: 2px solid $color2;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  min-width: 500px;
+}
+
+.keys-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: $color2;
+  margin-bottom: 20px;
+}
+
+.keys-cat {
+  color: $color2;
+  font-weight: bold;
+  font-size: 15px;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid rgba($color2, 0.3);
+  padding-bottom: 2px;
+}
+
+.key-row {
+  padding: 4px 0;
+}
+
+.key-name {
+  color: $color3;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.key-desc {
+  color: $foreground;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.keys-hint {
+  color: $color8;
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+// Scrollbar Styling
+scrollbar {
+  min-width: 6px;
+  background-color: transparent;
+}
+slider {
+  background-color: $color2;
+  border-radius: 10px;
+  min-height: 30px;
+}
+
+
+.bat { color: $color2; }
+.bat-charge { color: $color3; } /* Makes the charging bolt a different color */

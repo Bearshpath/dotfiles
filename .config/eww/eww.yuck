@@ -1,0 +1,159 @@
+;; --- VARIABLES ---
+(defpoll time :interval "1s" "date '+%I:%M %p'")
+(defpoll date :interval "1s" "date '+%a, %b %d'")
+(defpoll volume :interval "1s" "pamixer --get-volume")
+(defpoll wifi_name :interval "5s" "nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2")
+(defpoll current_ws :interval "0.1s" "hyprctl activeworkspace -j | jq '.id'")
+(defpoll bat_status :interval "2s" "cat /sys/class/power_supply/BAT0/status")
+(defpoll battery :interval "5s" "cat /sys/class/power_supply/BAT0/capacity")
+(defpoll memory :interval "2s" "free -m | grep Mem | awk '{print int($3/$2 * 100)}'")
+(defpoll cpu :interval "2s" "grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print int(usage)}'")
+
+;; Status Checks
+(defpoll bt_status :interval "2s" "rfkill list bluetooth | grep -q 'yes' && echo 'off' || echo 'on'")
+(defpoll wifi_status :interval "2s" "nmcli radio wifi")
+(defpoll nl_status :interval "2s" "pgrep -x hyprsunset >/dev/null && echo 'on' || echo 'off'")
+
+;; --- TOP BAR ---
+(defwindow topbar
+  :monitor 0
+  :geometry (geometry :x "0%" :y "10px" :width "100%" :height "40px" :anchor "top center")
+  :stacking "bg"
+  :exclusive false
+  (bar_layout))
+
+(defwidget bar_layout []
+  (box :class "main-bar" :orientation "h" :space-evenly false
+    (box :orientation "h" :space-evenly false :halign "start" :spacing 10
+         (apps_module)
+         (workspaces_module))
+    (box :hexpand true)
+    (box :orientation "h" :space-evenly false :halign "end" :spacing 10
+         (cpu_mem_module)
+         (wifi_module)
+         (vol_bat_module)
+         (clock_menu_module))
+  )
+)
+
+;; --- MODULES ---
+(defwidget apps_module []
+  (box :class "module-box apps" :orientation "h" :spacing 5
+       (button :class "icon-btn firefox" :onclick "firefox &" "")
+       (button :class "icon-btn files"   :onclick "thunar &" "")
+       (button :class "icon-btn chat"    :onclick "/usr/bin/Telegram &" "")
+       (button :class "icon-btn term"    :onclick "kitty &" "")))
+
+(defwidget workspaces_module []
+  (box :class "module-box workspaces" :orientation "h" :spacing 5
+       (ws_button :id 1 :label "1")
+       (ws_button :id 2 :label "2")
+       (ws_button :id 3 :label "3")
+       (ws_button :id 4 :label "4")
+       (ws_button :id 5 :label "5")))
+
+(defwidget ws_button [id label]
+  (button :class {current_ws == id ? "ws-btn active" : "ws-btn"}
+          :onclick "hyprctl dispatch workspace ${id}" label))
+
+(defwidget cpu_mem_module []
+  (box :class "module-box stats" :orientation "h" :spacing 10
+       (label :class "stat-label cpu" :text " ${cpu}%")
+       (label :class "stat-label mem" :text " ${memory}%")))
+
+(defwidget wifi_module []
+  (box :class "module-box wifi-box" :orientation "h"
+       (label :class "stat-label wifi" :text {wifi_name != "" ? " ${wifi_name}" : " Disconnected"})))
+
+
+(defwidget vol_bat_module[]
+  (box :class "module-box vol-bat" :orientation "h" :spacing 10
+       (label :class "stat-label vol" :text " ${volume}%")
+       (label :class {bat_status == "Charging" ? "stat-label bat-charge" : "stat-label bat"} 
+              :text {bat_status == "Charging" ? " ${battery}%" : " ${battery}%"})
+  )
+)
+
+(defwidget clock_menu_module []
+  (box :class "module-box clock-menu" :orientation "h" :space-evenly false :halign "end" :spacing 10
+       (box :orientation "h" :space-evenly false :spacing 5
+            (label :class "time" :text time)
+            (label :class "date" :text date))
+       (button :class "menu-btn" :onclick "eww open dashboard" "")))
+
+;; --- DASHBOARD ---
+(defwindow dashboard
+  :monitor 0
+  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "100%" :anchor "center")
+  :stacking "overlay"
+  (eventbox :onclick "eww close dashboard"
+    (box :class "dashboard-overlay" :orientation "v" :space-evenly false :halign "end" :valign "start"
+         (eventbox :onclick ""
+           (box :class "dashboard-box" :orientation "v" :spacing 15
+                (label :text "Control Center" :class "dash-title")
+                (box :orientation "h" :spacing 15
+                     (button :class {bt_status == "on" ? "dash-btn active" : "dash-btn"} :onclick "rfkill toggle bluetooth" "")
+                     (button :class {wifi_status == "enabled" ? "dash-btn active" : "dash-btn"} :onclick "rfkill toggle wifi" ""))
+                (box :orientation "h" :spacing 15
+                     (button :class {nl_status == "on" ? "dash-btn active" : "dash-btn"} :onclick "~/.config/hypr/scripts/nightlight.sh toggle" "")
+                     (button :class "dash-btn" :onclick "nm-connection-editor &" ""))
+                (button :class "dash-btn-wide" :onclick "eww open keybinds" "  View Shortcuts")
+           )))))
+
+;; --- KEYBINDINGS WINDOW ---
+(defwindow keybinds
+  :monitor 0
+  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "100%" :anchor "center")
+  :stacking "overlay"
+  (eventbox :onclick "eww close keybinds"
+    (box :class "keys-overlay" :orientation "v" :halign "center" :valign "center"
+         (eventbox :onclick ""
+           (box :class "keys-box" :orientation "v" :spacing 20 :space-evenly false
+                (label :text "SYSTEM SHORTCUTS" :class "keys-title")
+                (scroll :hscroll false :vscroll true :height 500 :width 500
+                  (box :orientation "v" :spacing 15 :class "keys-list"
+                       (label :text "--- Applications ---" :class "keys-cat")
+                       (key_row :key "Win + U" :desc "Kitty Terminal")
+                       (key_row :key "Win + K" :desc "Firefox")
+                       (key_row :key "Win + W" :desc "Google Chrome")
+                       (key_row :key "Win + E" :desc "Thunar Files")
+                       (key_row :key "Win + T" :desc "Telegram")
+                       (key_row :key "Win (Tap)" :desc "App Search (Wofi)")
+
+                       (label :text "--- Window Management ---" :class "keys-cat")
+                       (key_row :key "Win + O" :desc "Close Window")
+                       (key_row :key "Win + F" :desc "Fullscreen")
+                       (key_row :key "Win + L" :desc "Toggle Float")
+                       (key_row :key "Win + D" :desc "Show Desktop")
+                       (key_row :key "Win+Shift+J/O/U/N" :desc "Move Focus")
+
+                       (label :text "--- System & Tools ---" :class "keys-cat")
+                       (key_row :key "Win + X" :desc "Toggle Topbar")
+                       (key_row :key "Win + P/+,-" :desc "Zoom Mode (Exit:Esc)")
+                       (key_row :key "Win + Space" :desc "Clipboard History")
+                       (key_row :key "Win + Alt + W" :desc "Cycle Wallpaper")
+                       (key_row :key "Win + Shift + S" :desc "Screenshot")
+                       (key_row :key "Win + N/Win +/-" :desc "Night Light")
+                       (key_row :key "Win + Shift + C" :desc "Reload Hyprland")
+                       (key_row :key "Win + M" :desc "Logout (Exit)")
+                       (key_row :key "Win + B" :desc "Toggle Waybar")
+                       (key_row :key "Win+Shift+Esc" :desc "Task Manager")
+		       (key_row :key "gamermode in terminal" :desc "minimilastic hyprland")
+                       (key_row :key "gamerexit in terminal" :desc "original hyprland")
+	               ;; --- KEYBIND_START ---
+                       (key_row :key "Win + /" :desc "Shows Keybindings")
+                       (key_row :key "Win + Tab" :desc "Cycle Through Windows")
+                       (key_row :key "Win + Semicolon" :desc "LocalSend(airdrop)")
+                       (key_row :key "kb-mgr" :desc "Quick way to add shortcuts")
+		       (key_row :key "Win + Shift + left click drag" :desc "Resizing the window in floating mode")
+		       (key_row :key "Win + left click drag" :desc "Moving the window in floating mode")
+		       (key_row :key "Win + A" :desc "Switch Between Two audio mode")
+                       ;; --- KEYBIND_END ---
+                  ))
+                (label :text "Click outside to close" :class "keys-hint")
+           )))))
+
+(defwidget key_row [key desc]
+  (box :orientation "h" :space-evenly true :class "key-row"
+       (label :class "key-name" :halign "start" :text key)
+       (label :class "key-desc" :halign "end" :text desc)))

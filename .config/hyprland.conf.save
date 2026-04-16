@@ -1,0 +1,222 @@
+# source = ~/.config/hypr/conf/programs.conf
+# source = ~/.config/hypr/conf/startup.conf
+# source = ~/.config/hypr/conf/env.conf
+# source = ~/.config/hypr/conf/input.conf
+# source = ~/.config/hypr/conf/appearance.conf
+# source = ~/.config/hypr/conf/layouts.conf
+# source = ~/.config/hypr/conf/keybinds.conf
+# source = ~/.config/hypr/conf/windowrules.conf
+# source = ~/.config/hypr/conf/misc.conf
+# source = ~/.config/hypr/conf/monitors.conf
+# source = ~/.config/hypr/conf/workspaces.conf
+# ... (The rest of your code follows below) ...
+
+
+
+# CHANGE THESE TO MATCH YOUR MONITOR SETUP
+# source = ~/.config/hypr/conf/monitors.conf
+# # (requires hyprsome)
+# source = ~/.config/hypr/conf/workspaces.conf
+
+# =================================================================
+# SACHIN'S MASTER CONFIGURATION (Paste below 'source' lines)
+# =================================================================
+
+# --- 1. MONITOR & AUTOSTART ---
+monitor = , preferred, auto, 1.25
+
+env = HYPRLAND_INSTANCE_SIGNATURE,$HYPRLAND_INSTANCE_SIGNATURE
+# Start wallpaper, network, and auth agent
+exec-once = hyprpaper
+exec-once = swww-daemon & swww img ~/Desktop/wallpapers/enhancedjinwoo.jpg
+exec-once = nm-applet --indicator
+exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# Ensure Waybar is hidden by default (Kill it if it starts)
+exec-once = pkill waybar
+exec-once = hyprctl dispatch workspace 1
+exec-once = ~/.config/hypr/scripts/battery_check.sh &
+
+
+# --- 2. GENERAL LAYOUT (No Gaps, Full Screen) ---
+general {
+    gaps_in = 0
+    gaps_out = 0
+    border_size = 1
+    # Colors (Cyan and Green border)
+    col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
+    col.inactive_border = rgba(595959aa)
+    layout = dwindle
+}
+
+# --- 3. DECORATION (Fixed for Hyprland v0.45+) ---
+decoration {
+    rounding = 0
+    
+    # Transparency: Active = 85%, Inactive = 85%
+    active_opacity = 0.9
+    inactive_opacity = 0.9
+    fullscreen_opacity = 0.95
+
+    # Blur settings for that "glass" look
+    blur {
+        enabled = true
+        size = 5
+        passes = 3
+        new_optimizations = true
+    }
+
+    # New Shadow Syntax (Fixes the Red Bar error)
+    shadow {
+        enabled = true
+        range = 4
+        render_power = 3
+        color = rgba(1a1a1aee)
+    }
+}
+
+# --- 4. TILING BEHAVIOR (50/50 Split) ---
+dwindle {
+    pseudotile = yes
+    preserve_split = yes
+    force_split = 2  # Forces windows to always split 50/50
+}
+
+
+# --- 5. WINDOW RULES ---
+# Force Kitty to be 30% transparent (0.7) and always tile
+windowrule = opacity 0.9 0.9, match:class ^(kitty)$
+windowrule = tile on, match:class ^(kitty)$
+
+# Chrome settings
+windowrule = opacity 0.99 0.99, match:class ^(google-chrome)$
+windowrule = tile on, match:class ^(google-chrome)$
+
+# 3. Global Default: Ensure all apps tile by default
+windowrule = tile on, match:class .*
+
+# --- 6. KEYBINDINGS ---
+$mainMod = SUPER
+
+# Unbind old keys to prevent double-opening
+unbind = $mainMod, U
+unbind = $mainMod, O
+
+# Application Shortcuts
+bind = $mainMod, U, exec, kitty
+bind = $mainMod, W, exec, google-chrome-stable
+bind = $mainMod, E, exec, dolphin
+#bind = $mainMod, R, exec, wofi --show drun
+#bind = $mainMod, SPACE, exec, wofi --show drun
+
+# System Controls
+bind = $mainMod, M, exit           # Log out
+bind = $mainMod, L, togglefloating # Float window
+bind = $mainMod, F, fullscreen     # Fullscreen
+bind = $mainMod SHIFT, C, exec, hyprctl reload
+
+
+# Screenshot (Win+Shift+S) -> Save to Pictures & Copy to Clipboard
+bind = $mainMod SHIFT, S, exec, grim -g "$(slurp)" - | wl-copy && notify-send "Screenshot Copied to Clipboard"
+
+# Workspace Switching (1-5)
+bind = $mainMod, 1, workspace, 1
+bind = $mainMod, 2, workspace, 2
+bind = $mainMod, 3, workspace, 3
+bind = $mainMod, 4, workspace, 4
+bind = $mainMod, 5, workspace, 5
+
+# Move Window to Workspace
+bind = $mainMod SHIFT, 1, movetoworkspace, 1
+bind = $mainMod SHIFT, 2, movetoworkspace, 2
+bind = $mainMod SHIFT, 3, movetoworkspace, 3
+bind = $mainMod SHIFT, 4, movetoworkspace, 4
+bind = $mainMod SHIFT, 5, movetoworkspace, 5
+
+# Mouse Scroll/Move
+bindm = $mainMod, mouse:272, movewindow
+bindm = $mainMod, mouse:273, resizewindow
+
+bind = $mainMod, O, killactive      # Close Window
+bind = $mainMod, O, exec, pkill wofi # Close Search
+bind = $mainMod, B, exec, pkill waybar || waybar
+exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland
+
+# --- WINDOW FOCUS (Switching between windows) ---
+
+# Using Win + Shift + Letters (Your custom style)
+bind = $mainMod SHIFT, J, movefocus, l   # Focus Left
+bind = $mainMod SHIFT, O, movefocus, r   # Focus Right
+bind = $mainMod SHIFT, U, movefocus, u   # Focus Up
+bind = $mainMod SHIFT, N, movefocus, d   # Focus Down
+
+# Win + Tab (Cycle through all windows - like Alt+Tab)
+bind = $mainMod, Tab, cyclenext,
+
+#bind = $mainMod ALT, W, exec, swww img $(find ~/Desktop/wallpapers -type f | shuf -n 1)
+bind = $mainMod ALT, W, exec, ~/.config/hypr/scripts/cycle_wallpaper.sh
+
+animations {
+	enabled = true
+        bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+	animation = windowsOut, 0, 7, default, popin 80%
+        animation = workspaces, 0, 6, default
+        animation = border, 0, 10, default
+	animation = fade, 0, 7, default
+}
+
+# Win + Shift + Escape opens btop task manager
+bind = $mainMod SHIFT, Escape, exec, kitty btop
+
+input {
+    touchpad {
+        natural_scroll = true
+	scroll_factor = 0.3 
+        clickfinger_behavior = true
+    }
+}
+
+
+# Open Start Menu when pressing and releasing the Windows Key
+bindr = SUPER, SUPER_L, exec, pkill wofi || wofi --show drun
+
+# --- MEDIA & BRIGHTNESS KEYS ---
+
+# Volume (Using pamixer)
+binde = , XF86AudioRaiseVolume, exec, pamixer -i 5
+binde = , XF86AudioLowerVolume, exec, pamixer -d 5
+bind = , XF86AudioMute, exec, pamixer -t
+bind = , XF86AudioMicMute, exec, pamixer --default-source -t
+
+# Brightness (Using brightnessctl)
+binde = , XF86MonBrightnessUp, exec, brightnessctl set 10%+
+binde = , XF86MonBrightnessDown, exec, brightnessctl set 10%-
+
+# Media Player Controls (Play, Pause, Next, Prev)
+bind = , XF86AudioPlay, exec, playerctl play-pause
+bind = , XF86AudioPause, exec, playerctl play-pause
+bind = , XF86AudioNext, exec, playerctl next
+bind = , XF86AudioPrev, exec, playerctl previous
+
+
+
+misc {
+    # This allows scripts like WallRizz to change colors and reload settings
+    disable_hyprland_logo = true
+    force_default_wallpaper = 0
+    allow_session_lock_restore = true
+
+}
+
+# --- Night Light Configuration ---
+
+# Toggle on/off with Win + N
+bind = SUPER, n, exec, ~/.config/hypr/scripts/nightlight.sh toggle
+
+# Increase Temp (Cooler) with Win + Numpad Plus
+bind = SUPER, KP_Add, exec, ~/.config/hypr/scripts/nightlight.sh inc
+
+# Decrease Temp (Warmer) with Win + Numpad Minus
+bind = SUPER, KP_Subtract, exec, ~/.config/hypr/scripts/nightlight.sh dec
+
+unbind = $mainMod

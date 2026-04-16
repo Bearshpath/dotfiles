@@ -1,0 +1,132 @@
+configuration {
+        modi:                       "drun";
+        show-icons:                 true;
+        display-drun:               "";
+        drun-display-format:        "{name}";
+        font:                       "JetBrainsMono Nerd Font 11";
+}
+
+@theme "/dev/null"
+
+@import "~/.cache/wal/colors-rofi-dark"
+
+* {
+    /* Colors */
+    bg-col:  @background;
+    border-col: @selected-normal-background;
+    selected-col: @selected-normal-background;
+    fg-col: @foreground;
+    width: 500;
+    font: "JetBrainsMono Nerd Font 11";
+}
+
+element-text, element-icon , mode-switcher {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+window {
+    height: 360px;
+    background-color: @bg-col;
+    border: 2px;
+    border-color: @border-col;
+    border-radius: 12px;
+}
+
+mainbox {
+    background-color: @bg-col;
+}
+
+inputbar {
+    children: [prompt,entry];
+    background-color: @bg-col;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+prompt {
+    background-color: @border-col;
+    padding: 6px;
+    text-color: @bg-col;
+    border-radius: 3px;
+    margin: 20px 0px 0px 20px;
+}
+
+textbox-prompt-colon {
+    expand: false;
+    str: ":";
+}
+
+entry {
+    padding: 6px;
+    margin: 20px 0px 0px 10px;
+    text-color: @fg-col;
+    background-color: @bg-col;
+    placeholder: "Search Applications...";
+}
+
+listview {
+    border: 0px 0px 0px;
+    padding: 6px 0px 0px;
+    margin: 10px 0px 0px 20px;
+    columns: 1;
+    lines: 5;
+    background-color: @bg-col;
+}
+
+element {
+    padding: 5px;
+    background-color: @bg-col;
+    text-color: @fg-col;
+    border-radius: 8px;
+}
+
+element-icon {
+    size: 25px;
+}
+
+element selected {
+    background-color:  @selected-col;
+    text-color: @bg-col;
+}
+
+/* Add this to the end of ~/.config/rofi/config.rasi */
+
+
+/* Add/Replace these sections at the bottom of your config.rasi */
+/* --- Add/Replace these at the bottom of config.rasi --- */
+
+/* --- SCROLLABLE THEME SETTINGS --- */
+
+window {
+    width:            650px;
+    height:           500px;  /* FIXED HEIGHT triggers scrolling */
+    background-color: @bg-col;
+    border:           2px;
+    border-color:     @border-col;
+    border-radius:    12px;
+}
+
+message {
+    background-color: transparent;
+    border:           0px;
+    padding:          15px;
+}
+
+textbox {
+    text-color:       @fg-col;
+    background-color: transparent;
+    font:             "JetBrainsMono Nerd Font 10"; /* Terminal-style font */
+    horizontal-align: 0;
+    vertical-align:   0;  /* Start text at the very top */
+    wrap:             true;
+}
+
+/* This makes the error box look the same */
+error-message {
+    background-color:   @bg-col;
+    border:             2px;
+    border-color:       #f38ba8; /* Red for errors */
+    border-radius:      12px;
+    padding:            20px;
+}
